@@ -1,0 +1,184 @@
+.dashboard-container {
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+.dashboard-header {
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-content h1 {
+  color: #1a202c;
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.user-info span {
+  color: #4a5568;
+  font-weight: 500;
+}
+
+.logout-button {
+  padding: 8px 16px;
+  background: #e53e3e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.logout-button:hover {
+  background: #c53030;
+}
+
+.dashboard-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.dashboard-content {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.welcome-card {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.welcome-card h2 {
+  color: #1a202c;
+  font-size: 28px;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.welcome-card p {
+  color: #4a5568;
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.welcome-card strong {
+  color: #2d3748;
+  font-weight: 600;
+}
+
+.users-section {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.users-section h3 {
+  color: #1a202c;
+  font-size: 24px;
+  margin-bottom: 24px;
+  font-weight: 600;
+}
+
+.loading {
+  text-align: center;
+  color: #4a5568;
+  font-size: 16px;
+  padding: 20px;
+}
+
+.error-message {
+  background: #fed7d7;
+  border: 1px solid #feb2b2;
+  color: #c53030;
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.users-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.user-card {
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.user-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.user-card h4 {
+  color: #1a202c;
+  font-size: 18px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.user-card p {
+  color: #4a5568;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.user-card small {
+  color: #718096;
+  font-size: 12px;
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+  
+  .user-info {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .dashboard-main {
+    padding: 20px 16px;
+  }
+  
+  .welcome-card,
+  .users-section {
+    padding: 24px;
+  }
+  
+  .users-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,393 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Navbar */
+.navbar {
+  background: #1e293b;
+  color: white;
+  padding: 0 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  z-index: 1000;
+}
+
+.navbar-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.sidebar-toggle {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.sidebar-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.user-name {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.logout-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.logout-btn:hover {
+  background: #dc2626;
+}
+
+/* Layout Body */
+.layout-body {
+  display: flex;
+  margin-top: 64px;
+  min-height: calc(100vh - 64px);
+}
+
+/* Sidebar */
+.sidebar {
+  background: #1e293b; /* Mesma cor do navbar */
+  width: 280px;
+  min-height: 100%;
+  transition: all 0.3s ease;
+  border-right: 1px solid #334155;
+  position: fixed;
+  left: 0;
+  top: 64px;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 999;
+}
+
+.sidebar.closed {
+  width: 70px;
+}
+
+.sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid #334155;
+}
+
+.sidebar-header h3 {
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar.closed .sidebar-header h3 {
+  opacity: 0;
+}
+
+/* Sidebar Navigation */
+.sidebar-nav {
+  padding: 16px 0;
+}
+
+.sidebar-menu-group {
+  margin-bottom: 8px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  color: #cbd5e1;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: none;
+  background: none;
+  width: 100%;
+  cursor: pointer;
+  position: relative;
+}
+
+.sidebar-item:hover {
+  background-color: #334155;
+  color: white;
+}
+
+.sidebar-item.active {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.sidebar-item.expandable{
+  justify-content: flex-start;
+  gap: 0;
+}
+
+.sidebar-left{
+  display: flex;
+  align-items: center;
+  gap: 12px;     /* controla a distância ícone <-> texto */
+  flex: 1;
+  min-width: 0;
+}
+
+/* Se você quiser padronizar só via gap, pode tirar o margin-right: */
+.sidebar-icon{
+  font-size: 18px;
+  margin-right: 0; /* era 8px */
+  min-width: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.expand-icon{
+  margin-left: auto;
+}
+
+.sidebar.closed .expand-icon {
+  opacity: 0;
+}
+
+.sidebar-item.expanded .expand-icon {
+  transform: rotate(0deg);
+}
+
+/* Submenu */
+.sidebar-submenu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background-color: #0f172a;
+  border-left: 3px solid #3b82f6;
+}
+
+.sidebar-subitem {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px 10px 40px;
+  color: #94a3b8;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  font-size: 13px;
+}
+
+.sidebar-subitem:hover {
+  background-color: #1e293b;
+  color: white;
+}
+
+.sidebar-subitem.active {
+  background-color: #2563eb;
+  color: white;
+}
+
+.sidebar-subitem .sidebar-icon {
+  font-size: 14px;
+  margin-right: 6px;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding: 24px;
+  background-color: #f8fafc;
+  transition: margin-left 0.3s ease;
+  margin-left: 280px;
+  min-height: 100%;
+}
+
+.main-content.sidebar-closed {
+  margin-left: 70px;
+}
+
+/* Overlay para mobile */
+.sidebar-overlay {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: none;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 280px;
+  }
+  
+  .sidebar.closed {
+    width: 70px;
+  }
+  
+  .main-content {
+    margin-left: 280px;
+  }
+  
+  .main-content.sidebar-closed {
+    margin-left: 70px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar-overlay {
+    display: block;
+  }
+  
+  .sidebar {
+    width: 280px;
+    transform: translateX(-100%);
+    position: fixed;
+    z-index: 1001;
+  }
+  
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .sidebar.closed {
+    transform: translateX(-100%);
+  }
+  
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .main-content.sidebar-open {
+    margin-left: 0;
+  }
+  
+  .main-content.sidebar-closed {
+    margin-left: 0;
+  }
+  
+  .navbar-title {
+    font-size: 18px;
+  }
+  
+  .user-menu {
+    gap: 8px;
+  }
+  
+  .user-name {
+    display: none;
+  }
+  
+  .main-content {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .navbar {
+    padding: 0 12px;
+  }
+  
+  .navbar-title {
+    font-size: 16px;
+  }
+  
+  .main-content {
+    padding: 12px;
+  }
+  
+  .sidebar-item {
+    padding: 16px 20px;
+  }
+  
+  .sidebar-subitem {
+    padding: 12px 20px 12px 40px;
+  }
+}
+
+/* Animações suaves */
+.sidebar-submenu {
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 200px;
+  }
+}
+
+/* Estados de hover melhorados */
+.sidebar-item:not(.active):hover .sidebar-icon {
+  transform: scale(1.1);
+}
+
+.sidebar-subitem:not(.active):hover .sidebar-icon {
+  transform: scale(1.05);
+}
+
+/* Scrollbar personalizada para o sidebar */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
