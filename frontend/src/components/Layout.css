@@ -14,7 +14,7 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 72px;
+  height: 80px;
   z-index: 1000;
 }
 
@@ -23,8 +23,7 @@
   justify-content: space-between;
   align-items: center;
   height: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
+  width: 100%;
 }
 
 .navbar-left {
@@ -151,8 +150,8 @@
 /* Layout Body */
 .layout-body {
   display: flex;
-  margin-top: 72px;
-  min-height: calc(100vh - 72px);
+  margin-top: 80px;
+  min-height: calc(100vh - 80px);
 }
 
 /* Sidebar */
@@ -164,7 +163,7 @@
   border-right: 1px solid #334155;
   position: fixed;
   left: 0;
-  top: 72px;
+  top: 80px;
   bottom: 0;
   overflow-y: auto;
   z-index: 999;
@@ -340,7 +339,7 @@
 /* Overlay para mobile */
 .sidebar-overlay {
   position: fixed;
-  top: 64px;
+  top: 80px;
   left: 0;
   right: 0;
   bottom: 0;
