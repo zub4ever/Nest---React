@@ -1,25 +1,52 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import MDEditor from '@uiw/react-md-editor';
 import '@uiw/react-md-editor/markdown-editor.css';
 import '@uiw/react-markdown-preview/markdown.css';
 import api from '../../services/api';
 import { toast } from '../../services/notifications';
-import usePageTitle from '../../hooks/usePageTitle';
-import './css/CreatePost.css';
+import './css/EditPost.css';
 
-const CreatePost = () => {
-  usePageTitle('Criar Postagem');
+const EditPost = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
   const [formData, setFormData] = useState({
     title: '',
     body: '',
-    imageFiles: [], // Arquivos selecionados para upload
-    pdfFiles: [], // Arquivos selecionados para upload
-    imageAttachments: [], // URLs após upload
-    pdfAttachments: [] // URLs após upload
+    imageFiles: [], // Novos arquivos selecionados para upload
+    pdfFiles: [], // Novos arquivos selecionados para upload
+    imageAttachments: [], // URLs existentes + novas
+    pdfAttachments: [] // URLs existentes + novas
   });
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  useEffect(() => {
+    loadPost();
+  }, [id]);
+
+  const loadPost = async () => {
+    try {
+      setInitialLoading(true);
+      const response = await api.get(`/posts/${id}`);
+      const post = response.data;
+      
+      setFormData({
+        title: post.title,
+        body: post.body,
+        imageFiles: [],
+        pdfFiles: [],
+        imageAttachments: post.imageAttachments || [],
+        pdfAttachments: post.pdfAttachments || []
+      });
+    } catch (error) {
+      console.error('Erro ao carregar postagem:', error);
+      toast.error('Erro ao carregar postagem');
+      navigate('/posts');
+    } finally {
+      setInitialLoading(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -41,7 +68,6 @@ const CreatePost = () => {
 
     if (validFiles.length === 0) return;
 
-    // Armazenar arquivos para upload posterior
     setFormData(prev => ({
       ...prev,
       imageFiles: [...prev.imageFiles, ...validFiles]
@@ -62,7 +88,6 @@ const CreatePost = () => {
 
     if (validFiles.length === 0) return;
 
-    // Armazenar arquivos para upload posterior
     setFormData(prev => ({
       ...prev,
       pdfFiles: [...prev.pdfFiles, ...validFiles]
@@ -74,31 +99,38 @@ const CreatePost = () => {
   const removeImageAttachment = (index) => {
     setFormData(prev => ({
       ...prev,
-      imageFiles: prev.imageFiles.filter((_, i) => i !== index)
+      imageAttachments: prev.imageAttachments.filter((_, i) => i !== index)
     }));
   };
 
   const removePdfAttachment = (index) => {
     setFormData(prev => ({
       ...prev,
-      pdfFiles: prev.pdfFiles.filter((_, i) => i !== index)
+      pdfAttachments: prev.pdfAttachments.filter((_, i) => i !== index)
     }));
+  };
+
+  const getImageUrl = (imageUrl) => {
+    if (imageUrl.startsWith('http')) {
+      return imageUrl;
+    }
+    return `http://localhost:3000${imageUrl}`;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.title.trim() || !formData.body.trim()) {
-      toast.error('Título e corpo da mensagem são obrigatórios');
+    if (!formData.title.trim() || !formData.body?.trim()) {
+      toast.error('Título e conteúdo são obrigatórios');
       return;
     }
 
     setLoading(true);
     try {
-      let imageUrls = [];
-      let pdfUrls = [];
+      let imageUrls = [...formData.imageAttachments];
+      let pdfUrls = [...formData.pdfAttachments];
 
-      // Upload de imagens se existirem
+      // Upload de novas imagens se existirem
       if (formData.imageFiles.length > 0) {
         const imageFormData = new FormData();
         formData.imageFiles.forEach(file => {
@@ -110,11 +142,11 @@ const CreatePost = () => {
         });
 
         if (imageResponse.data.success) {
-          imageUrls = imageResponse.data.urls;
+          imageUrls = [...imageUrls, ...imageResponse.data.urls];
         }
       }
 
-      // Upload de PDFs se existirem
+      // Upload de novos PDFs se existirem
       if (formData.pdfFiles.length > 0) {
         const pdfFormData = new FormData();
         formData.pdfFiles.forEach(file => {
@@ -126,11 +158,11 @@ const CreatePost = () => {
         });
 
         if (pdfResponse.data.success) {
-          pdfUrls = pdfResponse.data.urls;
+          pdfUrls = [...pdfUrls, ...pdfResponse.data.urls];
         }
       }
 
-      // Criar post com URLs dos arquivos
+      // Atualizar post com URLs dos arquivos
       const postData = {
         title: formData.title,
         body: formData.body,
@@ -138,31 +170,47 @@ const CreatePost = () => {
         pdfAttachments: pdfUrls,
       };
 
-      await api.post('/posts', postData);
-      toast.success('Postagem criada com sucesso!');
+      await api.put(`/posts/${id}`, postData);
+      toast.success('Postagem atualizada com sucesso!');
       navigate('/posts');
     } catch (error) {
-      console.error('Erro ao criar postagem:', error);
-      toast.error('Erro ao criar postagem');
+      console.error('Erro ao atualizar postagem:', error);
+      
+      if (error.response) {
+        const status = error.response.status;
+        if (status === 404) {
+          toast.error('Postagem não encontrada');
+        } else if (status === 403) {
+          toast.error('Você não tem permissão para editar esta postagem');
+        } else {
+          toast.error(error.response.data?.message || 'Erro ao atualizar postagem');
+        }
+      } else {
+        toast.error('Erro ao conectar com o servidor');
+      }
     } finally {
       setLoading(false);
     }
   };
 
+  if (initialLoading) {
+    return (
+      <div className="edit-post-container">
+        <div className="loading">Carregando...</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="create-post-container">
-      <div className="create-post-header">
-        <h1>📝 Nova Postagem</h1>
-        <button 
-          type="button" 
-          onClick={() => navigate('/posts')} 
-          className="btn btn-secondary"
-        >
-          ← Voltar
+    <div className="edit-post-container">
+      <div className="edit-post-header">
+        <h1>Editar Postagem</h1>
+        <button type="button" onClick={() => navigate('/posts')} className="btn-cancel">
+          Cancelar
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="create-post-form">
+      <form onSubmit={handleSubmit} className="edit-post-form">
         <div className="form-group">
           <label htmlFor="title">Título *</label>
           <input
@@ -206,22 +254,24 @@ const CreatePost = () => {
             <div className="attachments-preview">
               <h4>Imagens anexadas:</h4>
               {formData.imageAttachments.map((image, index) => (
-                <div key={index} className="attachment-item image-preview">
+                <div key={index} className="attachment-item">
                   <img 
-                    src={`http://localhost:3000${image}`} 
-                    alt={`Imagem ${index + 1}`}
-                    className="preview-image"
+                    src={getImageUrl(image)} 
+                    alt={`Anexo ${index + 1}`} 
+                    className="image-preview"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'inline';
+                    }}
                   />
-                  <div className="attachment-info">
-                    <span>🖼️ Imagem {index + 1}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeImageAttachment(index)}
-                      className="remove-attachment"
-                    >
-                      ❌
-                    </button>
-                  </div>
+                  <span style={{display: 'none', color: '#666'}}>Imagem não disponível</span>
+                  <button 
+                    type="button" 
+                    onClick={() => removeImageAttachment(index)} 
+                    className="remove-attachment"
+                  >
+                    ✕
+                  </button>
                 </div>
               ))}
             </div>
@@ -237,18 +287,18 @@ const CreatePost = () => {
             accept=".pdf"
             onChange={handlePdfUpload}
           />
-          {formData.pdfFiles.length > 0 && (
+          {formData.pdfAttachments.length > 0 && (
             <div className="attachments-preview">
-              <h4>PDFs selecionados:</h4>
-              {formData.pdfFiles.map((file, index) => (
-                <div key={index} className="attachment-item">
-                  <span>📄 {file.name}</span>
-                  <button
-                    type="button"
-                    onClick={() => removePdfAttachment(index)}
+              <h4>PDFs anexados:</h4>
+              {formData.pdfAttachments.map((pdf, index) => (
+                <div key={index} className="attachment-item pdf-item">
+                  <span className="pdf-name">📄 PDF {index + 1}</span>
+                  <button 
+                    type="button" 
+                    onClick={() => removePdfAttachment(index)} 
                     className="remove-attachment"
                   >
-                    ❌
+                    ✕
                   </button>
                 </div>
               ))}
@@ -256,21 +306,12 @@ const CreatePost = () => {
           )}
         </div>
 
-        <div className="form-actions">
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={loading}
-          >
-            {loading ? 'Criando...' : '✓ Criar Postagem'}
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate('/posts')}
-            className="btn btn-secondary"
-            disabled={loading}
-          >
+        <div className="form-buttons">
+          <button type="button" onClick={() => navigate('/posts')} className="btn-cancel">
             Cancelar
+          </button>
+          <button type="submit" disabled={loading} className="btn-submit">
+            {loading ? 'Salvando...' : 'Atualizar Postagem'}
           </button>
         </div>
       </form>
@@ -278,4 +319,4 @@ const CreatePost = () => {
   );
 };
 
-export default CreatePost;
+export default EditPost;

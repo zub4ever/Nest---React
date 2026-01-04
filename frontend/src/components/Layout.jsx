@@ -19,7 +19,7 @@ const Layout = () => {
     users: false, 
     posts: false 
   });
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -67,29 +67,40 @@ const Layout = () => {
     if (isMobile) setSidebarOpenMobile(false);
   };
 
-  const menuItems = [
-    { path: '/dashboard', name: 'Dashboard', icon: '📊', type: 'link' },
-    {
-      key: 'posts',
-      name: 'Postagens',
-      icon: '📝',
-      type: 'expandable',
-      submenu: [
-        { path: '/posts', name: 'Listar', icon: '📋' },
-        { path: '/create-post', name: 'Criar Postagem', icon: '➕' },
-      ],
-    },
-    {
-      key: 'users',
-      name: 'Usuários',
-      icon: '👥',
-      type: 'expandable',
-      submenu: [
-        { path: '/users', name: 'Listar', icon: '📋' },
-        { path: '/create-user', name: 'Criar Usuário', icon: '➕' },
-      ],
-    },
-  ];
+  // Menus baseados no role do usuário
+  const getMenuItems = () => {
+    const baseMenus = [
+      { path: '/dashboard', name: 'Dashboard', icon: '📊', type: 'link' },
+      {
+        key: 'posts',
+        name: 'Postagens',
+        icon: '📝',
+        type: 'expandable',
+        submenu: [
+          { path: '/posts', name: 'Listar', icon: '📋' },
+          { path: '/create-post', name: 'Criar Postagem', icon: '➕' },
+        ],
+      }
+    ];
+
+    // Apenas administradores podem ver o menu de usuários
+    if (isAdmin()) {
+      baseMenus.push({
+        key: 'users',
+        name: 'Usuários',
+        icon: '👥',
+        type: 'expandable',
+        submenu: [
+          { path: '/users', name: 'Listar', icon: '📋' },
+          { path: '/create-user', name: 'Criar Usuário', icon: '➕' },
+        ],
+      });
+    }
+
+    return baseMenus;
+  };
+
+  const menuItems = getMenuItems();
 
   const sidebarClass = [
     'sidebar',
@@ -115,16 +126,32 @@ const Layout = () => {
       <nav className="navbar">
         <div className="navbar-content">
           <div className="navbar-left">
+            <div className="navbar-brand">
+              <img 
+                src="/imagens/pirarucu.png" 
+                alt="Pirarucu" 
+                className="navbar-logo"
+              />
+              <h1 className="navbar-title">De olho no pirarucu</h1>
+            </div>
             <button className="sidebar-toggle" onClick={handleToggleSidebar}>
               ☰
             </button>
-            <h1 className="navbar-title">Sistema de Usuários</h1>
           </div>
 
           <div className="navbar-right">
             <div className="user-menu">
-              <span className="user-name">👤 {user?.name}</span>
+              <div className="user-info">
+                <span className="user-avatar">👤</span>
+                <div className="user-details">
+                  <span className="user-name">{user?.name}</span>
+                  <span className="user-role">
+                    {user?.role === 'admin' ? '👑 Administrador' : '👤 Colaborador'}
+                  </span>
+                </div>
+              </div>
               <button onClick={handleLogout} className="logout-btn">
+                <span className="logout-icon">🚪</span>
                 Sair
               </button>
             </div>

@@ -1,20 +1,37 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import MDEditor from '@uiw/react-md-editor';
+import '@uiw/react-md-editor/markdown-editor.css';
+import '@uiw/react-markdown-preview/markdown.css';
 import api from '../services/api';
+import usePageTitle from '../hooks/usePageTitle';
 import './css/PublicFeed.css';
 
 const PublicFeed = () => {
+  usePageTitle('Feed Público');
+  
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0
+  });
 
   useEffect(() => {
-    fetchPublicPosts();
+    fetchPublicPosts(pagination.page);
   }, []);
 
-  const fetchPublicPosts = async () => {
+  const fetchPublicPosts = async (page = 1) => {
     try {
-      const response = await api.get('/posts/public/feed');
-      setPosts(response.data);
+      setLoading(true);
+      const response = await api.get(`/posts/public/feed?page=${page}&limit=10`);
+      setPosts(response.data.data);
+      setPagination({
+        page: response.data.page,
+        limit: response.data.limit,
+        total: response.data.total
+      });
     } catch (error) {
       console.error('Erro ao carregar feed público:', error);
     } finally {
@@ -37,6 +54,16 @@ const PublicFeed = () => {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + '...';
   };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= Math.ceil(pagination.total / pagination.limit)) {
+      setPagination(prev => ({ ...prev, page: newPage }));
+      fetchPublicPosts(newPage);
+      window.scrollTo(0, 0);
+    }
+  };
+
+  const totalPages = Math.ceil(pagination.total / pagination.limit);
 
   const renderAttachments = (post, isFeatured = false) => {
     const hasAttachments = post.imageAttachments?.length > 0 || post.pdfAttachments?.length > 0;
@@ -163,7 +190,14 @@ const PublicFeed = () => {
       {/* Header do jornal */}
       <header className="feed-header">
         <div className="header-content">
-          <h1 className="site-title">De olho no Pirarucu 📰</h1>
+          <div className="site-title-container">
+            <img 
+              src="/imagens/pirarucu.png" 
+              alt="Pirarucu" 
+              className="site-logo"
+            />
+            <h1 className="site-title">De olho no pirarucu</h1>
+          </div>
         </div>
       </header>
 
@@ -185,15 +219,23 @@ const PublicFeed = () => {
               <article className="featured-post">
                 <div className="featured-content">
                   <div className="post-category">✨ Destaque</div>
-                  <h2 className="featured-title">{posts[0].title}</h2>
+                  <Link to={`/feed/${posts[0].id}`} className="featured-title-link">
+                    <h2 className="featured-title">{posts[0].title}</h2>
+                  </Link>
                   <div className="featured-meta">
                     <span className="author">Por {posts[0].author.name}</span>
                     <span className="date">{formatDate(posts[0].createdAt)}</span>
                   </div>
                   <div className="featured-body">
-                    {truncateText(posts[0].body, 500)}
+                    <MDEditor.Markdown 
+                      source={truncateText(posts[0].body, 500)} 
+                      style={{ backgroundColor: 'transparent' }}
+                    />
                   </div>
                   {renderAttachments(posts[0], true)}
+                  <Link to={`/feed/${posts[0].id}`} className="read-more-button">
+                    Ler postagem completa →
+                  </Link>
                 </div>
               </article>
             )}
@@ -206,18 +248,78 @@ const PublicFeed = () => {
                   {posts.slice(1).map((post) => (
                     <article key={post.id} className="post-card-public">
                       <div className="card-content">
-                        <h4 className="card-title">{post.title}</h4>
+                        <Link to={`/feed/${post.id}`} className="card-title-link">
+                          <h4 className="card-title">{post.title}</h4>
+                        </Link>
                         <div className="card-meta">
                           <span className="card-author">👤 {post.author.name}</span>
                           <span className="card-date">📅 {formatDate(post.createdAt)}</span>
                         </div>
-                        <p className="card-body">
-                          {truncateText(post.body, 150)}
-                        </p>
+                        <div className="card-body">
+                          <MDEditor.Markdown 
+                            source={truncateText(post.body, 150)} 
+                            style={{ backgroundColor: 'transparent' }}
+                          />
+                        </div>
                         {renderAttachments(post, false)}
+                        <Link to={`/feed/${post.id}`} className="read-more-card">
+                          Ler mais →
+                        </Link>
                       </div>
                     </article>
                   ))}
+                </div>
+              </section>
+            )}
+
+            {/* Paginação */}
+            {totalPages > 1 && (
+              <section className="pagination-section">
+                <div className="pagination">
+                  <button 
+                    onClick={() => handlePageChange(pagination.page - 1)}
+                    disabled={pagination.page === 1}
+                    className="pagination-button"
+                  >
+                    ← Anterior
+                  </button>
+                  
+                  <div className="pagination-numbers">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter(page => {
+                        return page === 1 || 
+                               page === totalPages || 
+                               Math.abs(page - pagination.page) <= 1;
+                      })
+                      .map((page, index, array) => (
+                        <div key={page}>
+                          {index > 0 && array[index - 1] !== page - 1 && (
+                            <span className="pagination-ellipsis">...</span>
+                          )}
+                          <button
+                            onClick={() => handlePageChange(page)}
+                            className={`pagination-number ${
+                              pagination.page === page ? 'active' : ''
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        </div>
+                      ))}
+                  </div>
+                  
+                  <button 
+                    onClick={() => handlePageChange(pagination.page + 1)}
+                    disabled={pagination.page === totalPages}
+                    className="pagination-button"
+                  >
+                    Próximo →
+                  </button>
+                </div>
+                
+                <div className="pagination-info">
+                  Página {pagination.page} de {totalPages} | 
+                  Total: {pagination.total} postagens
                 </div>
               </section>
             )}

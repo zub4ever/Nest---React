@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { UserEntity } from '../../persistence/entities/user.entity';
+import { UserEntity, UserRole } from '../../persistence/entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
@@ -25,6 +25,7 @@ export class UsersService {
       name: dto.name.trim(),
       email,
       password: passwordHash,
+      role: dto.role || UserRole.COLABORADOR,
     });
 
     

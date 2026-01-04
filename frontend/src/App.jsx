@@ -8,7 +8,9 @@ import Users from './pages/users/Users';
 import CreateUser from './pages/users/CreateUser';
 import Posts from './pages/posts/Posts';
 import CreatePost from './pages/posts/CreatePost';
+import EditPost from './pages/posts/EditPost';
 import PublicFeed from './pages/PublicFeed';
+import PostView from './pages/PostView';
 import Layout from './components/Layout';
 import './App.css';
 
@@ -33,6 +35,7 @@ function App() {
       <Routes>
         <Route path="/" element={<RootRedirect />} />
         <Route path="/feed" element={<PublicFeed />} />
+        <Route path="/feed/:id" element={<PostView />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route 
@@ -66,9 +69,19 @@ function App() {
           <Route index element={<CreatePost />} />
         </Route>
         <Route 
-          path="/users" 
+          path="/posts/:id/edit" 
           element={
             <ProtectedRoute>
+              <Layout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<EditPost />} />
+        </Route>
+        <Route 
+          path="/users" 
+          element={
+            <ProtectedRoute requireAdmin>
               <Layout />
             </ProtectedRoute>
           }
@@ -78,7 +91,7 @@ function App() {
         <Route 
           path="/create-user" 
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requireAdmin>
               <Layout />
             </ProtectedRoute>
           }

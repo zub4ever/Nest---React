@@ -65,13 +65,39 @@ export const AuthProvider = ({ children }) => {
     return !!user && !!authService.getToken();
   };
 
+  const isAdmin = () => {
+    return user && user.role === 'admin';
+  };
+
+  const isColaborador = () => {
+    return user && user.role === 'colaborador';
+  };
+
+  const hasPermission = (permission) => {
+    if (!user) return false;
+    
+    // Admin tem todas as permissões
+    if (user.role === 'admin') return true;
+    
+    // Colaborador só tem certas permissões
+    if (user.role === 'colaborador') {
+      const colaboradorPermissions = ['create_post', 'edit_own_post', 'delete_own_post', 'view_dashboard'];
+      return colaboradorPermissions.includes(permission);
+    }
+    
+    return false;
+  };
+
   const value = {
     user,
     login,
     register,
     logout,
     loading,
-    isAuthenticated
+    isAuthenticated,
+    isAdmin,
+    isColaborador,
+    hasPermission
   };
 
   return (

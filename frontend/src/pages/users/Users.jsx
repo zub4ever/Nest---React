@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { toast, confirmDelete } from '../../services/notifications';
 import Breadcrumbs from '../../components/Breadcrumbs';
+import usePageTitle from '../../hooks/usePageTitle';
 import './css/Users.css';
 
 const Users = () => {
+  usePageTitle('Gerenciar Usuários');
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -67,11 +69,12 @@ const Users = () => {
       <Breadcrumbs />
       <div className="users-header">
         <div className="header-content">
-         {/* <div className="header-title">
+          {/* 
+          <div className="header-title">
             <span className="title-main">Gerenciar Usuários</span> <br />
             <span className="title-subtitle">Visualize e gerencie todos os usuários do sistema</span>
           </div>
-           */}
+          */}
         </div>
         <button 
           className="btn-create-user"

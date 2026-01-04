@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Navigate, useLocation, Link } from 'react-router-dom';
+import usePageTitle from '../../hooks/usePageTitle';
 import './Login.css';
 
 const Login = () => {
+  usePageTitle('Login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -39,6 +41,14 @@ const Login = () => {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
+          <div className="login-brand">
+            <img 
+              src="/imagens/pirarucu.png" 
+              alt="Pirarucu" 
+              className="login-logo"
+            />
+            <h2 className="system-name">De olho no pirarucu</h2>
+          </div>
           <h1>Entrar</h1>
           <p>Faça login em sua conta</p>
         </div>

@@ -103,13 +103,13 @@
   color: #0056b3;
 }
 
-.post-attachments {
+.post-attachment {
   border-top: 1px solid #e0e0e0;
   padding-top: 16px;
   margin-top: 16px;
 }
 
-.post-attachments h4 {
+.post-attachment h4 {
   margin: 0 0 12px 0;
   font-size: 16px;
   color: #555;

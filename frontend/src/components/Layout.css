@@ -14,7 +14,7 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 64px;
+  height: 72px;
   z-index: 1000;
 }
 
@@ -48,49 +48,111 @@
   background-color: rgba(255, 255, 255, 0.1);
 }
 
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navbar-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px;
+}
+
 .navbar-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
   margin: 0;
+  color: #f1f5f9;
 }
 
 .navbar-right {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .user-menu {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar {
+  font-size: 18px;
+  opacity: 0.9;
+  min-width: 18px;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
 .user-name {
   font-weight: 500;
   font-size: 14px;
+  color: #e2e8f0;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-role {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 400;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .logout-btn {
   background: #ef4444;
   color: white;
   border: none;
-  padding: 8px 16px;
+  padding: 6px 12px;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .logout-btn:hover {
   background: #dc2626;
+  transform: translateY(-1px);
+}
+
+.logout-icon {
+  font-size: 12px;
 }
 
 /* Layout Body */
 .layout-body {
   display: flex;
-  margin-top: 64px;
-  min-height: calc(100vh - 64px);
+  margin-top: 72px;
+  min-height: calc(100vh - 72px);
 }
 
 /* Sidebar */
@@ -102,10 +164,36 @@
   border-right: 1px solid #334155;
   position: fixed;
   left: 0;
-  top: 64px;
+  top: 72px;
   bottom: 0;
   overflow-y: auto;
   z-index: 999;
+}
+
+/* Estados do sidebar - Desktop */
+.sidebar.desktop.collapsed {
+  width: 70px;
+}
+
+.sidebar.desktop.collapsed .sidebar-header h3,
+.sidebar.desktop.collapsed .sidebar-text,
+.sidebar.desktop.collapsed .expand-icon {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sidebar.desktop.collapsed .sidebar-submenu {
+  display: none;
+}
+
+/* Estados do sidebar - Mobile */
+.sidebar.mobile {
+  transform: translateX(-100%);
+  width: 280px;
+}
+
+.sidebar.mobile.open {
+  transform: translateX(0);
 }
 
 .sidebar.closed {
@@ -241,8 +329,12 @@
   min-height: 100%;
 }
 
-.main-content.sidebar-closed {
+.main-content.sidebar-collapsed {
   margin-left: 70px;
+}
+
+.main-content.sidebar-expanded {
+  margin-left: 280px;
 }
 
 /* Overlay para mobile */
@@ -253,8 +345,12 @@
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
+  z-index: 998;
   display: none;
+}
+
+.sidebar-overlay.show {
+  display: block;
 }
 
 /* Responsive Design */
@@ -390,4 +486,48 @@
 
 .sidebar::-webkit-scrollbar-thumb:hover {
   background: #64748b;
+}
+
+/* Responsividade para o navbar */
+@media (max-width: 768px) {
+  .navbar-brand {
+    gap: 8px;
+  }
+  
+  .navbar-logo {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .navbar-title {
+    font-size: 16px;
+  }
+  
+  .user-menu {
+    gap: 8px;
+    padding: 4px;
+  }
+  
+  .user-name {
+    display: none; /* Esconde o nome em telas pequenas */
+  }
+  
+  .logout-btn {
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+  
+  .logout-icon {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-title {
+    font-size: 14px;
+  }
+  
+  .navbar-brand {
+    gap: 6px;
+  }
 }

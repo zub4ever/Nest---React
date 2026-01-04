@@ -1,28 +1,67 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { usersService } from '../../services/api';
+import { usersService, postsService } from '../../services/api';
+import usePageTitle from '../../hooks/usePageTitle';
 import './Dashboard.css';
 
 const Dashboard = () => {
-  const { user, logout } = useAuth();
-  const [users, setUsers] = useState([]);
+  usePageTitle('Dashboard');
+  const { user, isAdmin } = useAuth();
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalPosts: 0,
+    myPosts: 0
+  });
+  const [recentPosts, setRecentPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const loadUsers = async () => {
+    const loadDashboardData = async () => {
       try {
-        const usersData = await usersService.getAllUsers();
-        setUsers(usersData);
+        setLoading(true);
+        
+        if (isAdmin()) {
+          // Admin vê estatísticas gerais
+          const [usersData, postsData] = await Promise.all([
+            usersService.getAllUsers(),
+            postsService.getPosts({ page: 1, limit: 5 })
+          ]);
+          
+          setStats({
+            totalUsers: Array.isArray(usersData) ? usersData.length : 0,
+            totalPosts: postsData?.total || 0,
+            myPosts: Array.isArray(postsData?.data) ? postsData.data.filter(p => p.author?.id === user?.id).length : 0
+          });
+          setRecentPosts(Array.isArray(postsData?.data) ? postsData.data : []);
+        } else {
+          // Colaborador vê apenas suas estatísticas
+          const myPostsData = await postsService.getPosts({ page: 1, limit: 5 });
+          
+          setStats({
+            totalUsers: 0, // Colaborador não vê total de usuários
+            totalPosts: 0,  // Colaborador não vê total geral de posts
+            myPosts: myPostsData?.total || 0
+          });
+          setRecentPosts(Array.isArray(myPostsData?.data) ? myPostsData.data : []);
+        }
       } catch (error) {
-        setError('Erro ao carregar usuários: ' + (error.response?.data?.message || error.message));
+        console.error('Erro ao carregar dashboard:', error);
+        setError('Erro ao carregar dados: ' + (error.response?.data?.message || error.message));
+        // Reset para valores seguros em caso de erro
+        setRecentPosts([]);
+        setStats({
+          totalUsers: 0,
+          totalPosts: 0,
+          myPosts: 0
+        });
       } finally {
         setLoading(false);
       }
     };
 
-    loadUsers();
-  }, []);
+    loadDashboardData();
+  }, [user, isAdmin]);
 
   const handleLogout = () => {
     logout();
@@ -36,47 +75,77 @@ const Dashboard = () => {
           <h1>Dashboard</h1>
           <div className="user-info">
             <span>Olá, {user?.name}!</span>
-            <button onClick={handleLogout} className="logout-button">
-              Sair
-            </button>
+            <span className="user-role">
+              {user?.role === 'admin' ? '👑 Administrador' : '👤 Colaborador'}
+            </span>
           </div>
         </div>
       </header>
 
       <main className="dashboard-main">
         <div className="dashboard-content">
-          <div className="welcome-card">
-            <h2>Bem-vindo ao Sistema!</h2>
-            <p>Você está logado como: <strong>{user?.email}</strong></p>
-            <p>Conta criada em: <strong>{new Date(user?.createdAt).toLocaleDateString('pt-BR')}</strong></p>
+          <div className="stats-grid">
+            {isAdmin() && (
+              <div className="stat-card">
+                <div className="stat-icon">👥</div>
+                <div className="stat-content">
+                  <h3>{stats.totalUsers}</h3>
+                  <p>Usuários Cadastrados</p>
+                </div>
+              </div>
+            )}
+            
+            {isAdmin() && (
+              <div className="stat-card">
+                <div className="stat-icon">📝</div>
+                <div className="stat-content">
+                  <h3>{stats.totalPosts}</h3>
+                  <p>Total de Postagens</p>
+                </div>
+              </div>
+            )}
+            
+            <div className="stat-card">
+              <div className="stat-icon">📄</div>
+              <div className="stat-content">
+                <h3>{stats.myPosts}</h3>
+                <p>Minhas Postagens</p>
+              </div>
+            </div>
           </div>
 
-          <div className="users-section">
-            <h3>Usuários Cadastrados</h3>
+          <div className="recent-section">
+            <h3>{isAdmin() ? 'Postagens Recentes' : 'Minhas Postagens Recentes'}</h3>
             
             {loading && (
-              <div className="loading">Carregando usuários...</div>
+              <div className="loading">Carregando...</div>
             )}
             
             {error && (
               <div className="error-message">{error}</div>
             )}
             
-            {!loading && !error && (
-              <div className="users-grid">
-                {users.length > 0 ? (
-                  users.map((user) => (
-                    <div key={user.id} className="user-card">
-                      <h4>{user.name}</h4>
-                      <p>{user.email}</p>
-                      <small>
-                        Membro desde {new Date(user.createdAt).toLocaleDateString('pt-BR')}
-                      </small>
-                    </div>
-                  ))
-                ) : (
-                  <p>Nenhum usuário encontrado.</p>
-                )}
+            {!loading && !error && Array.isArray(recentPosts) && recentPosts.length === 0 && (
+              <div className="no-data">
+                {isAdmin() ? 'Nenhuma postagem encontrada' : 'Você ainda não criou nenhuma postagem'}
+              </div>
+            )}
+            
+            {!loading && !error && Array.isArray(recentPosts) && recentPosts.length > 0 && (
+              <div className="posts-list">
+                {recentPosts.map((post) => (
+                  <div key={post.id} className="post-item">
+                    <h4>{post.title || 'Sem título'}</h4>
+                    <p className="post-meta">
+                      Por: {post.author?.name || 'Usuário desconhecido'} • {new Date(post.createdAt).toLocaleDateString('pt-BR')}
+                    </p>
+                    <p className="post-excerpt">
+                      {post.body && post.body.length > 100 
+                        ? post.body.substring(0, 100) + '...' 
+                        : post.body || 'Sem conteúdo'}
+                    </p>
+                  </div>
+                ))}
               </div>
             )}
           </div>

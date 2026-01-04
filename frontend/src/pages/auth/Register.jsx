@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Navigate, Link } from 'react-router-dom';
+import usePageTitle from '../../hooks/usePageTitle';
 import './Register.css';
 
 const Register = () => {
+  usePageTitle('Cadastro');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

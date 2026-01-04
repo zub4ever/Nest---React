@@ -11,7 +11,8 @@ const CreateUser = () => {
     name: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    role: 'colaborador'
   });
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -45,7 +46,8 @@ const CreateUser = () => {
       const response = await api.post('/users', {
         name: formData.name,
         email: formData.email,
-        password: formData.password
+        password: formData.password,
+        role: formData.role
       });
       
       toast.success('Usuário criado com sucesso!');
@@ -128,6 +130,25 @@ const CreateUser = () => {
                 placeholder="Digite a senha novamente"
                 className="form-input"
               />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="role">Perfil *</label>
+              <select
+                id="role"
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                required
+                className="form-input"
+              >
+                <option value="colaborador">👤 Colaborador</option>
+                <option value="admin">👑 Administrador</option>
+              </select>
+              <small className="form-hint">
+                Colaboradores só podem ver e editar seus próprios conteúdos. 
+                Administradores têm acesso total ao sistema.
+              </small>
             </div>
           </div>
 
