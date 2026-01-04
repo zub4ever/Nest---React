@@ -6,6 +6,9 @@ import Register from './pages/auth/Register';
 import Dashboard from './pages/dashboard/Dashboard';
 import Users from './pages/users/Users';
 import CreateUser from './pages/users/CreateUser';
+import Posts from './pages/posts/Posts';
+import CreatePost from './pages/posts/CreatePost';
+import PublicFeed from './pages/PublicFeed';
 import Layout from './components/Layout';
 import './App.css';
 
@@ -29,6 +32,7 @@ function App() {
     <div className="app">
       <Routes>
         <Route path="/" element={<RootRedirect />} />
+        <Route path="/feed" element={<PublicFeed />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route 
@@ -40,6 +44,26 @@ function App() {
           }
         >
           <Route index element={<Dashboard />} />
+        </Route>
+        <Route 
+          path="/posts" 
+          element={
+            <ProtectedRoute>
+              <Layout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Posts />} />
+        </Route>
+        <Route 
+          path="/create-post" 
+          element={
+            <ProtectedRoute>
+              <Layout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<CreatePost />} />
         </Route>
         <Route 
           path="/users" 

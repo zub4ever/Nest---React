@@ -1,9 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { RequestMethod, ValidationPipe } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // Configurar CORS
   app.enableCors({
@@ -13,6 +15,11 @@ async function bootstrap() {
     credentials: true,
   });
 
+  // Servir arquivos estáticos
+  app.useStaticAssets(join('/app', 'uploads'), {
+    prefix: '/uploads',
+  });
+
   // Configurar ValidationPipe global
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
@@ -20,9 +27,12 @@ async function bootstrap() {
     transform: true,
   }));
 
-  // tudo vira /api/... exceto GET /
+  // tudo vira /api/... exceto GET / e /uploads
   app.setGlobalPrefix('api', {
-    exclude: [{ path: '/', method: RequestMethod.GET }],
+    exclude: [
+      { path: '/', method: RequestMethod.GET },
+      { path: '/uploads/*', method: RequestMethod.GET },
+    ],
   });
 
   const port = Number(process.env.APP_PORT ?? 3000);

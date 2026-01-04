@@ -5,6 +5,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { PostsModule } from './modules/posts/posts.module';
+import { UploadModule } from './modules/upload/upload.module';
 import { PersistenceModule } from './persistence/persistence.module';
 
 @Module({
@@ -17,6 +19,8 @@ import { PersistenceModule } from './persistence/persistence.module';
     PersistenceModule,
     UsersModule,
     AuthModule,
+    PostsModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],

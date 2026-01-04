@@ -15,7 +15,10 @@ const Layout = () => {
   // Mobile: sidebarOpenMobile = drawer aberto/fechado
   const [sidebarOpenMobile, setSidebarOpenMobile] = useState(false);
 
-  const [expandedMenus, setExpandedMenus] = useState({ users: false });
+  const [expandedMenus, setExpandedMenus] = useState({ 
+    users: false, 
+    posts: false 
+  });
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -66,6 +69,16 @@ const Layout = () => {
 
   const menuItems = [
     { path: '/dashboard', name: 'Dashboard', icon: '📊', type: 'link' },
+    {
+      key: 'posts',
+      name: 'Postagens',
+      icon: '📝',
+      type: 'expandable',
+      submenu: [
+        { path: '/posts', name: 'Listar', icon: '📋' },
+        { path: '/create-post', name: 'Criar Postagem', icon: '➕' },
+      ],
+    },
     {
       key: 'users',
       name: 'Usuários',
